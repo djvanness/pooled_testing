@@ -20,7 +20,12 @@ Specificity - probability test is negative (T-) given no disease (D-)
 ```{r}
 p_D1 = 0.02 #2% Prevalence
 p_T1_D1 = 0.9 #90% Sensitive
-p_T0_D0 = 0.95 #95% Specificity
+p_T0_D0 = 0.995 #95% Specificity
+cost_test = 50 #Cost of test $50
+cost_quarantine = (51240/52)*2
+QALY_quarantine = .1*(2/52)
+lambda = 100000 #Opportunity cost/WTP per QALY
+p_symp_D1 = .5
 
 ```
 
@@ -39,6 +44,29 @@ T1_D1 = rbinom(n = N_test, size = 1, prob = p_T1_D1)
 T1_D0 = rbinom(n = N_test, size = 1, prob = (1-p_T0_D0))
 T1 = (S==0)*T1_D0 + (S==1)*T1_D1
 c_T1 = sum(T1)
+
+cost_T1_D0 = cost_test + cost_quarantine + QALY_quarantine*lambda #FALSE POSITIVE - may be relevant for partially-identified pooled test
+cost_T1_D1 = cost_test + (1-p_symp_D1)*cost_quarantine + QALY_quarantine*lambda #TRUE POSITIVE
+cost_T0_D0 = cost_test #True negative
+cost_T0_D1 = cost_test + cost_transmission #False negative: cost of transmission will be sum of costs of individuals infected who would not have been infected otherwise
+
+#SIRD : S = Susceptible pop, I = Infected pop, R = Recovered pop, D = Deaths
+#SIRDQ : Q = quarantined : Q = QS (false positives) + QI (true positives)
+#Population = S + QS + QI + I + R + D
+#dI = force of infection (I) * S
+#dR = function(length of disease, mortality)
+#dD = function(mortality)
+#dS = -dI
+
+s->I
+QS -> S
+QI -> I
+I->R
+I->D
+R -> R
+D -> D
+
+
 ```
 
 
